@@ -3,17 +3,13 @@
     {
       "id": "1",
       "name": "AmirHossein Kazemi",
-      "email": "amir@ex.com",
-      "number": "55187982",
-      "password": "Amir1380?",
-      "passConfirm": "Amir1380?",
+      "email": "amir2001Kazemi@gmail.com",
+      "number": "09398257750",
+      "password": "follan123?",
+      "passConfirm": "follan123?",
       "gender": "0",
       "nationality": "IR",
-      "intersts": [
-        "React",
-        "Node",
-        "Vue"
-      ],
+      "intersts": ["React"],
       "terms": true
     }
   ]
