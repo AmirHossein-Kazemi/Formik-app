@@ -1,0 +1,20 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "AmirHossein Kazemi",
+      "email": "amir@ex.com",
+      "number": "55187982",
+      "password": "Amir1380?",
+      "passConfirm": "Amir1380?",
+      "gender": "0",
+      "nationality": "IR",
+      "intersts": [
+        "React",
+        "Node",
+        "Vue"
+      ],
+      "terms": true
+    }
+  ]
+}

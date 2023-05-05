@@ -1,12 +1,42 @@
 import * as Yup from "yup";
 import { useFormik } from "formik";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import Input from "./common/Input";
+import RadioButton from "./common/RadioButton";
+import SelectComponent from "./common/SelectComponent";
+import CheckBox from "./common/CheckBox";
+import React from "react";
+import BooleanCheckBox from "./common/BooleanCheckBox";
+
+const checkBoxOptions = [
+  { value: "React", label: "React.js" },
+  { value: "Node", label: "Node.js" },
+  { value: "Vue", label: "Vue.js" },
+];
+
+const radioOptions = [
+  { value: "0", label: "Male" },
+  { value: "1", label: "Female" },
+];
+
+const selectOptions = [
+  { value: "", label: "Select Nationality" },
+  { value: "IR", label: "Iran" },
+  { value: "FA", label: "France" },
+  { value: "GER", label: "Germany" },
+];
 
 const initialValues = {
   name: "",
   email: "",
   number: "",
   password: "",
-  passConfrim: "",
+  passConfirm: "",
+  gender: "",
+  nationality: "",
+  intersts: [],
+  terms: false,
 };
 
 const onSubmit = (s) => {
@@ -19,75 +49,92 @@ const validationSchema = Yup.object({
     .min(2, "name is too short 2 at least"),
   email: Yup.string()
     .email("invalid email format")
-    .required("Name is Required"),
+    .required("Email is Required"),
   number: Yup.string()
-    .required("Name is Required")
-    .matches(/^[0-9]{11}$/, "invalid phone number")
+    .required("Phone Number is Required")
+    .matches(/^[0-9]{8,}$/, "invalid phone number")
     .nullable(),
-  password: Yup.string().required("Name is Required"),
-  passConfrim: Yup.string()
+  password: Yup.string()
+    .required("Password is Required")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*?])(?=.{8,})/,
+      "Must Contain 8 Characters, One Uppercase, One Lowercase, One Number and One Special Case Character"
+    ),
+  passConfirm: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Password Confirmation is Required"),
+  gender: Yup.string().required("Gender is Required"),
+  nationality: Yup.string().required("Select an Option"),
+  intersts: Yup.array().min(1).required("atleast select one expertise"),
+  terms: Yup.boolean()
+    .required("the terms and the condition must be accepted")
+    .oneOf([true], "the terms and the condition must be accepted"),
 });
 
 const SignUpForm = () => {
+  const [formValue, setFormValue] = useState(null);
+
+  const onSubmit = (values) => {
+    axios
+      .post("http://localhost:3001/users", values)
+      .then((res) => console.log(res.data))
+      .catch((err) => console.log(err));
+  };
+
   const formik = useFormik({
-    initialValues,
+    initialValues: formValue || initialValues,
     onSubmit,
     validationSchema,
+    validateOnMount: true,
+    enableReinitialize: true,
   });
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/users/1")
+      .then((res) => {
+        setFormValue(res.data);
+      })
+      .catch();
+  }, []);
 
   return (
     <div>
       <form onSubmit={formik.handleSubmit}>
-        <div className="formControl">
-          <label>Name</label>
-          <input type="text" {...formik.getFieldProps("name")} name="name" />
-          {formik.errors.name && formik.touched.name && (
-            <div className="error">{formik.errors.name}</div>
-          )}
-        </div>
-        <div className="formControl">
-          <label>Email</label>
-          <input type="email" name="email" {...formik.getFieldProps("email")} />
-          {formik.errors.email && formik.touched.email && (
-            <div className="error">{formik.errors.email}</div>
-          )}
-        </div>
-        <div className="formControl">
-          <label>Number</label>
-          <input
-            type="text"
-            name="number"
-            {...formik.getFieldProps("number")}
-          />
-          {formik.errors.number && formik.touched.number && (
-            <div className="error">{formik.errors.number}</div>
-          )}
-        </div>
-        <div className="formControl">
-          <label>Password</label>
-          <input
-            type="password"
-            name="password"
-            {...formik.getFieldProps("password")}
-          />
-          {formik.errors.password && formik.touched.password && (
-            <div className="error">{formik.errors.password}</div>
-          )}
-        </div>
-        <div className="formControl">
-          <label>Password Confirmation</label>
-          <input
-            type="password"
-            name="passConfrim"
-            {...formik.getFieldProps("passConfrim")}
-          />
-          {formik.errors.passConfrim && formik.touched.passConfrim && (
-            <div className="error">{formik.errors.passConfrim}</div>
-          )}
-        </div>
-        <button type="submit">Submit</button>
+        <Input name="name" formik={formik} label="Name" />
+        <Input name="email" formik={formik} label="Email" type="email" />
+        <Input name="number" formik={formik} label="Phone Number" />
+        <Input
+          name="password"
+          formik={formik}
+          label="Password"
+          type="password"
+        />
+        <Input
+          name="passConfirm"
+          formik={formik}
+          label="Password Confirmation"
+          type="password"
+        />
+        <RadioButton
+          formik={formik}
+          name="gender"
+          radioOptions={radioOptions}
+        />
+        <SelectComponent
+          selectOption={selectOptions}
+          name="nationality"
+          formik={formik}
+        />
+        <CheckBox
+          checkBoxOptions={checkBoxOptions}
+          name="intersts"
+          formik={formik}
+        />
+        <BooleanCheckBox formik={formik} />
+        <button type="submit" disabled={!formik.isValid}>
+          Submit
+        </button>
       </form>
     </div>
   );
